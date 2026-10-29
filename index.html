@@ -10,26 +10,31 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
+        
         :root {
             --bg-base: #050608; --bg-elevated: #14171C; --bg-hover: #1C2027; --border: #262B33;
             --text-primary: #F5F7FA; --text-secondary: #8E96A3; --text-muted: #5C6470;
             --accent: #7C5CFF; --accent-glow: rgba(124, 92, 255, 0.4); --danger: #FF5C7A;
             --glass: rgba(10, 12, 16, 0.85); --blur: 20px; --font-display: 'Space Grotesk', sans-serif;
         }
+        
         body { background-color: var(--bg-base); color: var(--text-primary); font-family: 'Inter', sans-serif; display: flex; height: 100vh; overflow: hidden; }
         .ambient-bg { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at 15% 50%, var(--accent-glow), transparent 40%); z-index: -2; }
         ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+        
         .sidebar { width: 260px; background: var(--glass); backdrop-filter: blur(var(--blur)); border-right: 1px solid var(--border); padding: 24px; display: flex; flex-direction: column; gap: 24px; z-index: 10; }
         .logo { font-family: var(--font-display); font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 12px; color: var(--accent); }
         .nav-group { display: flex; flex-direction: column; gap: 8px; }
         .nav-item { color: var(--text-secondary); font-weight: 500; font-size: 14px; padding: 12px 16px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; gap: 14px; transition: 0.2s; }
         .nav-item:hover, .nav-item.active { color: var(--text-primary); background: rgba(255, 255, 255, 0.05); }
         .nav-item.active { border-left: 3px solid var(--accent); }
+        
         .main-content { flex: 1; display: flex; flex-direction: column; position: relative; }
         .header { padding: 32px 40px; display: flex; justify-content: space-between; align-items: center; }
         .header h1 { font-family: var(--font-display); font-size: 32px; font-weight: 700; }
         .view-section { display: none; flex: 1; flex-direction: column; overflow: hidden; }
         .view-section.active { display: flex; }
+        
         .track-grid { padding: 24px 40px; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; overflow-y: auto; flex: 1; padding-bottom: 140px; }
         .track-card { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 16px; padding: 16px; display: flex; align-items: center; gap: 16px; cursor: pointer; transition: 0.3s; }
         .track-card:hover { background: var(--bg-hover); transform: translateY(-4px); border-color: var(--accent); }
@@ -37,6 +42,7 @@
         .track-info { flex: 1; overflow: hidden; }
         .track-title { font-weight: 600; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 6px; }
         .track-artist { color: var(--text-secondary); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
         .player-wrapper { position: absolute; bottom: 24px; left: 24px; right: 24px; z-index: 20; }
         .player-bar { height: 96px; background: var(--glass); backdrop-filter: blur(24px); border: 1px solid var(--border); border-radius: 24px; display: flex; align-items: center; justify-content: space-between; padding: 0 32px; box-shadow: 0 20px 40px rgba(0,0,0,0.6); }
         .player-left { width: 30%; display: flex; align-items: center; gap: 20px; cursor: pointer; }
@@ -50,6 +56,7 @@
         input[type=range]::-webkit-slider-runnable-track { height: 4px; background: rgba(255,255,255,0.1); border-radius: 4px; }
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 12px; width: 12px; border-radius: 50%; background: var(--text-primary); margin-top: -4px; }
         .player-right { width: 30%; display: flex; align-items: center; justify-content: flex-end; gap: 20px; }
+        
         .search-container { padding: 0 40px 20px 40px; }
         .search-input { width: 100%; max-width: 600px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 12px; padding: 16px 24px; color: var(--text-primary); outline: none; }
         .chat-box { margin: 0 40px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 16px; padding: 24px; height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
@@ -60,19 +67,24 @@
 </head>
 <body class="theme-glass" id="bodyTheme">
     <div class="ambient-bg" id="ambientBg"></div>
+    
     <aside class="sidebar">
         <div class="logo"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M2 12h2l3-9 4 18 4-18 3 9h2"/></svg> OPENWAVE</div>
         <div class="nav-group">
             <a class="nav-item active" onclick="switchTab('home')" id="nav-home">Home</a>
+            <a class="nav-item" onclick="switchTab('my-music')" id="nav-my-music">My Music</a>
             <a class="nav-item" onclick="switchTab('search')" id="nav-search">Search</a>
             <a class="nav-item" onclick="switchTab('library')" id="nav-library">Library</a>
             <a class="nav-item" onclick="switchTab('community')" id="nav-community">Community</a>
             <a class="nav-item" onclick="switchTab('stats')" id="nav-stats">Wrapped</a>
         </div>
     </aside>
+    
     <main class="main-content">
         <div class="header"><h1 id="page-title">EXPLORE MUSIC</h1></div>
+        
         <div class="view-section active" id="view-home"><div class="track-grid" id="grid-home"></div></div>
+        <div class="view-section" id="view-my-music"><div class="track-grid" id="grid-my-music"></div></div>
         <div class="view-section" id="view-search">
             <div class="search-container"><input type="text" id="searchInput" class="search-input" placeholder="Search..." onkeyup="debounceSearch()"></div>
             <div class="track-grid" id="grid-search"></div>
@@ -95,6 +107,7 @@
                 <div style="grid-column: span 2; background:var(--bg-elevated); padding:32px; border-radius:16px; border:1px solid var(--border);"><canvas id="artistChart" style="max-height: 300px;"></canvas></div>
             </div>
         </div>
+        
         <div class="player-wrapper">
             <div class="player-bar">
                 <div class="player-left"><img id="currentArt" src=""><div><div class="track-title" id="currentTitle">Awaiting Input</div><div class="track-artist" id="currentArtist">OpenWave System</div></div></div>
@@ -110,11 +123,14 @@
             </div>
         </div>
     </main>
+    
     <audio id="audioPlayer" crossorigin="anonymous"></audio>
     <div id="toastContainer" style="position:fixed; bottom:20px; right:20px; z-index:999;"></div>
 
     <script>
-        const API_BASE = "https://openwaveconnect.onrender.com";
+        // MAKE SURE THIS IS YOUR EXACT RENDER URL
+        const API_BASE = "https://openwaveconnect.onrender.com"; 
+        
         let allTracks = [];
         let currentIndex = -1;
         let savedTracks = JSON.parse(localStorage.getItem('openwave_library')) || [];
@@ -128,36 +144,34 @@
             setTimeout(() => c.innerHTML = '', 3000);
         }
 
-        // Wake up Render Server on load
-        async function pingServer() {
-            try { await fetch(`${API_BASE}/api/community/playlists`); } catch(e) {}
-        }
-        pingServer();
-
         async function fetchHome() {
             const grid = document.getElementById('grid-home');
-            grid.innerHTML = '<div style="color:var(--text-secondary); grid-column:1/-1; text-align:center; padding:40px;">Waking up server... (This can take 30-50 seconds on free hosting)</div>';
-            
+            grid.innerHTML = '<div style="color:var(--text-secondary); grid-column:1/-1; text-align:center; padding:40px;">Waking up server...</div>';
             try {
                 const [aRes, jRes] = await Promise.all([
                     fetch(`${API_BASE}/api/audius/trending`).then(r => r.json()), 
                     fetch(`${API_BASE}/api/jamendo/trending`).then(r => r.json())
                 ]);
-                
                 let merged = [];
                 if (aRes.data) merged = merged.concat(aRes.data.map(t => ({ id: t.id, title: t.title, artist: t.user.name, artwork: t.artwork?.['150x150'] || '', streamUrl: `${API_BASE}/api/audius/stream/${t.id}` })));
                 if (jRes.results) merged = merged.concat(jRes.results.map(t => ({ id: t.id, title: t.name, artist: t.artist_name, artwork: t.image || '', streamUrl: t.audio })));
-                
-                if(merged.length === 0) {
-                    grid.innerHTML = '<div style="color:var(--danger); grid-column:1/-1; text-align:center; padding:40px;">Connected, but returned 0 tracks. Check your API tokens in Render.</div>';
-                    return;
-                }
-
                 allTracks = merged.sort(() => Math.random() - 0.5);
                 renderGrid(allTracks, 'grid-home');
-            } catch(e) { 
-                grid.innerHTML = '<div style="color:var(--danger); grid-column:1/-1; text-align:center; padding:40px;">Failed to connect. Open Developer Tools (F12) and check Console.</div>'; 
-            }
+            } catch(e) { grid.innerHTML = '<div style="color:var(--danger); grid-column:1/-1; text-align:center; padding:40px;">Failed to connect.</div>'; }
+        }
+
+        async function fetchMyMusic() {
+            const grid = document.getElementById('grid-my-music');
+            grid.innerHTML = '<div style="color:var(--text-secondary); grid-column:1/-1; text-align:center; padding:40px;">Loading your tracks...</div>';
+            try {
+                const res = await fetch(`${API_BASE}/api/my_music`);
+                const data = await res.json();
+                if(data.tracks && data.tracks.length > 0) {
+                    renderGrid(data.tracks, 'grid-my-music');
+                } else {
+                    grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:40px;">No music added yet.</div>';
+                }
+            } catch(e) { grid.innerHTML = '<div style="color:var(--danger); grid-column:1/-1; text-align:center; padding:40px;">Failed to load your music.</div>'; }
         }
 
         function renderGrid(tracks, containerId) {
@@ -224,23 +238,22 @@
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             document.getElementById(`view-${tab}`).classList.add('active');
             document.getElementById(`nav-${tab}`).classList.add('active');
+            
+            if(tab === 'my-music') { document.getElementById('page-title').innerText = "MY MUSIC"; fetchMyMusic(); }
             if(tab === 'library') renderGrid(savedTracks, 'grid-library');
             if(tab === 'community') fetchCommunity();
         }
 
         async function fetchCommunity() {
             try {
-                const [pRes, cRes] = await Promise.all([
-                    fetch(`${API_BASE}/api/community/playlists`).then(r=>r.json()),
-                    fetch(`${API_BASE}/api/community/chat`).then(r=>r.json())
-                ]);
+                const [pRes, cRes] = await Promise.all([fetch(`${API_BASE}/api/community/playlists`).then(r=>r.json()), fetch(`${API_BASE}/api/community/chat`).then(r=>r.json())]);
                 const grid = document.getElementById('communityGrid');
                 grid.innerHTML = '';
                 pRes.playlists.forEach(pl => {
                     grid.innerHTML += `<div class="community-card" style="background: linear-gradient(135deg, ${pl.color}, #14171C);"><div><h3>${pl.name}</h3><p>By ${pl.author}</p></div></div>`;
                 });
                 renderChat(cRes.messages);
-            } catch(e) { console.error(e); }
+            } catch(e) {}
         }
 
         function renderChat(messages) {
@@ -261,10 +274,7 @@
             const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
             input.value = '';
             try {
-                await fetch(`${API_BASE}/api/community/chat`, {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ user: "You", text: text, time: timeStr })
-                });
+                await fetch(`${API_BASE}/api/community/chat`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user: "You", text: text, time: timeStr }) });
                 const res = await fetch(`${API_BASE}/api/community/chat`);
                 const data = await res.json();
                 renderChat(data.messages);
