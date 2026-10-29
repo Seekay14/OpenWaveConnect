@@ -1,550 +1,408 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OpenWave // Singularity</title>
-    <link rel="icon" id="dynamicFavicon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.0/color-thief.umd.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        :root {
-            --bg-base: #030405; --bg-elevated: #0A0C10; --bg-hover: #14171C; --border: #1F242D;
-            --text-primary: #F5F7FA; --text-secondary: #8E96A3; --text-muted: #4A5260;
-            --accent: #7C5CFF; --accent-hover: #9179FF; --accent-glow: rgba(124, 92, 255, 0.3);
-            --danger: #FF5C7A; --glass: rgba(10, 12, 16, 0.6); --blur: 40px; 
-            --font-display: 'Space Grotesk', sans-serif; --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-        }
-
-        body { background-color: var(--bg-base); color: var(--text-primary); font-family: 'Inter', sans-serif; height: 100vh; overflow: hidden; -webkit-font-smoothing: antialiased; }
-        
-        /* Ambient Animated Background */
-        .ambient-bg {
-            position: fixed; top: -50%; left: -50%; width: 200%; height: 200%;
-            background: radial-gradient(circle at 50% 50%, var(--accent-glow) 0%, transparent 40%);
-            z-index: -1; animation: rotate 40s linear infinite; opacity: 0.6; filter: blur(120px);
-        }
-        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
-
-        /* =========================================
-           BILLION DOLLAR LOGIN SCREEN
-           ========================================= */
-        .login-screen {
-            position: fixed; inset: 0; background: rgba(3, 4, 5, 0.7);
-            backdrop-filter: blur(50px); z-index: 9999;
-            display: flex; align-items: center; justify-content: center;
-            opacity: 1; transition: opacity 0.6s ease;
-        }
-        .login-screen.hidden { opacity: 0; pointer-events: none; }
-
-        .login-modal {
-            background: var(--bg-elevated); border: 1px solid var(--border);
-            border-radius: 24px; padding: 56px 48px; width: 440px; text-align: center;
-            box-shadow: 0 40px 100px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,255,255,0.03) inset;
-            transition: var(--transition);
-        }
-
-        .login-logo {
-            width: 56px; height: 56px; background: linear-gradient(135deg, var(--accent), #A88BFF);
-            border-radius: 16px; display: flex; align-items: center; justify-content: center;
-            margin: 0 auto 24px; box-shadow: 0 12px 32px var(--accent-glow);
-        }
-        .login-logo svg { width: 28px; height: 28px; color: white; }
-
-        .login-modal h2 { font-family: var(--font-display); font-size: 28px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px; }
-        .login-modal p { color: var(--text-secondary); font-size: 14px; margin-bottom: 32px; }
-
-        /* Social Login Buttons */
-        .social-btn {
-            width: 100%; padding: 14px; background: var(--bg-hover); border: 1px solid var(--border);
-            border-radius: 12px; color: var(--text-primary); font-size: 14px; font-weight: 600;
-            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px;
-            margin-bottom: 12px; transition: var(--transition);
-        }
-        .social-btn:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.2); }
-        .social-btn svg { width: 18px; height: 18px; }
-
-        .divider { display: flex; align-items: center; text-align: center; color: var(--text-muted); font-size: 12px; margin: 24px 0; }
-        .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--border); }
-        .divider:not(:empty)::before { margin-right: 16px; }
-        .divider:not(:empty)::after { margin-left: 16px; }
-
-        /* Input Fields */
-        .input-group { position: relative; margin-bottom: 16px; text-align: left; }
-        .input-group input {
-            width: 100%; background: var(--bg-hover); border: 1px solid var(--border);
-            border-radius: 12px; padding: 16px; color: var(--text-primary); font-size: 15px;
-            outline: none; transition: var(--transition);
-        }
-        .input-group input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(124, 92, 255, 0.1); }
-        .input-group input::placeholder { color: transparent; }
-        .input-group label {
-            position: absolute; left: 16px; top: 16px; color: var(--text-muted); font-size: 15px;
-            pointer-events: none; transition: var(--transition);
-        }
-        .input-group input:focus ~ label,
-        .input-group input:not(:placeholder-shown) ~ label {
-            top: -10px; left: 12px; font-size: 11px; background: var(--bg-elevated);
-            padding: 0 6px; color: var(--accent); font-weight: 700; letter-spacing: 0.5px;
-        }
-
-        .login-btn {
-            width: 100%; padding: 16px; background: var(--text-primary); color: var(--bg-base);
-            border: none; border-radius: 12px; font-size: 16px; font-weight: 700;
-            cursor: pointer; transition: var(--transition); margin-top: 12px;
-        }
-        .login-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(255,255,255,0.1); }
-
-        /* =========================================
-           MAIN APP UI
-           ========================================= */
-        .app-container { display: flex; height: 100vh; opacity: 0; pointer-events: none; transition: opacity 0.6s ease; }
-        .app-container.active { opacity: 1; pointer-events: all; }
-
-        /* SIDEBAR */
-        .sidebar {
-            width: 280px; background: var(--glass); backdrop-filter: blur(var(--blur));
-            border-right: 1px solid var(--border); padding: 32px 24px;
-            display: flex; flex-direction: column; gap: 32px; z-index: 10;
-        }
-        .logo { font-family: var(--font-display); font-size: 22px; font-weight: 700; display: flex; align-items: center; gap: 12px; letter-spacing: -0.5px; }
-        .logo svg { color: var(--accent); filter: drop-shadow(0 0 10px var(--accent-glow)); }
-
-        .nav-group { display: flex; flex-direction: column; gap: 6px; flex: 1; }
-        .nav-item {
-            color: var(--text-secondary); font-weight: 500; font-size: 14px;
-            padding: 12px 16px; border-radius: 10px; cursor: pointer;
-            display: flex; align-items: center; gap: 14px; transition: var(--transition);
-        }
-        .nav-item:hover { color: var(--text-primary); background: rgba(255, 255, 255, 0.03); }
-        .nav-item.active { color: var(--text-primary); background: rgba(255, 255, 255, 0.06); border-left: 2px solid var(--accent); }
-
-        .user-profile {
-            padding: 16px; background: var(--bg-hover); border-radius: 16px;
-            display: flex; align-items: center; gap: 12px; cursor: pointer;
-            border: 1px solid transparent; transition: var(--transition);
-        }
-        .user-profile:hover { border-color: var(--border); background: var(--bg-base); }
-        .user-avatar {
-            width: 40px; height: 40px; border-radius: 50%;
-            background: linear-gradient(135deg, var(--accent), #2DD4BF);
-            display: flex; align-items: center; justify-content: center;
-            font-weight: bold; color: white; font-size: 16px;
-        }
-        .user-info { overflow: hidden; }
-        .user-name { font-weight: 600; font-size: 14px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
-        .user-handle { font-size: 12px; color: var(--text-muted); }
-
-        /* MAIN CONTENT */
-        .main-content { flex: 1; display: flex; flex-direction: column; position: relative; }
-        .header { padding: 40px 48px; display: flex; justify-content: space-between; align-items: center; }
-        .header h1 { font-family: var(--font-display); font-size: 36px; font-weight: 700; letter-spacing: -1px; }
-
-        .view-section { display: none; flex: 1; flex-direction: column; overflow: hidden; }
-        .view-section.active { display: flex; animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* TRACK GRID */
-        .track-grid {
-            padding: 0 48px 140px 48px; display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 16px; overflow-y: auto; flex: 1;
-        }
-        .track-card {
-            background: var(--bg-elevated); border: 1px solid var(--border);
-            border-radius: 16px; padding: 16px; display: flex; align-items: center; gap: 16px;
-            cursor: pointer; transition: var(--transition); position: relative; overflow: hidden;
-        }
-        .track-card:hover { background: var(--bg-hover); transform: translateY(-4px); border-color: rgba(124, 92, 255, 0.3); box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
-        .art-container img { width: 64px; height: 64px; border-radius: 10px; object-fit: cover; }
-        .track-info { flex: 1; overflow: hidden; }
-        .track-title { font-weight: 600; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; color: var(--text-primary); }
-        .track-artist { color: var(--text-secondary); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-        /* PLAYER BAR */
-        .player-wrapper { position: absolute; bottom: 32px; left: 32px; right: 32px; z-index: 20; }
-        .player-bar {
-            height: 88px; background: rgba(11, 13, 16, 0.85); backdrop-filter: blur(40px) saturate(150%);
-            border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px;
-            display: flex; align-items: center; justify-content: space-between; padding: 0 32px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.02) inset;
-        }
-        .player-left { width: 30%; display: flex; align-items: center; gap: 20px; cursor: pointer; }
-        .player-left img { width: 56px; height: 56px; border-radius: 10px; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
-        .player-center { width: 40%; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-        .controls { display: flex; align-items: center; gap: 24px; }
-        .btn-icon { background: none; border: none; color: var(--text-secondary); cursor: pointer; transition: var(--transition); display: flex; align-items: center; justify-content: center; }
-        .btn-icon:hover { color: var(--text-primary); transform: scale(1.1); }
-        .play-btn {
-            width: 48px; height: 48px; border-radius: 50%; background: var(--text-primary); color: var(--bg-base);
-            border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
-            transition: var(--transition); box-shadow: 0 4px 15px rgba(255,255,255,0.2);
-        }
-        .play-btn:hover { transform: scale(1.05); background: #fff; }
-        .progress-container { display: flex; align-items: center; gap: 16px; width: 100%; max-width: 500px; color: var(--text-muted); font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; }
-        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
-        input[type=range]::-webkit-slider-runnable-track { height: 4px; background: rgba(255,255,255,0.1); border-radius: 4px; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 12px; width: 12px; border-radius: 50%; background: var(--text-primary); margin-top: -4px; transition: var(--transition); }
-        input[type=range]:hover::-webkit-slider-thumb { background: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
-        .player-right { width: 30%; display: flex; align-items: center; justify-content: flex-end; gap: 20px; }
-
-        /* SEARCH & CHAT */
-        .search-container { padding: 0 48px 32px 48px; }
-        .search-input { width: 100%; max-width: 600px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 12px; padding: 16px 24px; color: var(--text-primary); outline: none; transition: var(--transition); }
-        .search-input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(124,92,255,0.1); }
-
-        .chat-box { margin: 0 48px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 16px; padding: 24px; height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
-        .chat-msg { background: var(--bg-hover); padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.5; }
-        .community-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 24px; padding: 0 48px; }
-        .community-card { padding: 24px; border-radius: 16px; color: #fff; cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; height: 200px; transition: var(--transition); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-        .community-card:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenWave // Singularity</title>
+<link rel="icon" id="dynamicFavicon" type="image/png" href="data:image/png;base64,iVBORw0KGgo=">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.0/color-thief.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg-base:#030405;--bg-elevated:#0A0C10;--bg-hover:#14171C;--border:#1F242D;--text-primary:#F5F7FA;--text-secondary:#8E96A3;--text-muted:#4A5260;--accent:#7C5CFF;--accent-hover:#9179FF;--accent-glow:rgba(124,92,255,0.3);--danger:#FF5C7A;--glass:rgba(10,12,16,0.6);--blur:40px;--font-display:'Space Grotesk',sans-serif;--transition:all 0.3s cubic-bezier(0.25,0.8,0.25,1)}
+body{background:var(--bg-base);color:var(--text-primary);font-family:'Inter',sans-serif;height:100vh;overflow:hidden;-webkit-font-smoothing:antialiased}
+.ambient-bg{position:fixed;inset:-50%;width:200%;height:200%;background:radial-gradient(circle at 50% 50%,var(--accent-glow),transparent 40%);z-index:-1;animation:rotate 40s linear infinite;opacity:.6;filter:blur(120px)}
+@keyframes rotate{to{transform:rotate(360deg)}}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px}
+/* LOGIN */
+.login-screen{position:fixed;inset:0;background:rgba(3,4,5,.7);backdrop-filter:blur(50px);z-index:9999;display:flex;align-items:center;justify-content:center;transition:opacity .6s}
+.login-screen.hidden{opacity:0;pointer-events:none}
+.login-modal{background:var(--bg-elevated);border:1px solid var(--border);border-radius:24px;padding:56px 48px;width:440px;text-align:center;box-shadow:0 40px 100px rgba(0,0,0,.9),0 0 0 1px rgba(255,255,255,.03) inset}
+.login-logo{width:56px;height:56px;background:linear-gradient(135deg,var(--accent),#A88BFF);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;box-shadow:0 12px 32px var(--accent-glow)}
+.login-logo svg{width:28px;height:28px;color:#fff}
+.login-modal h2{font-family:var(--font-display);font-size:28px;margin-bottom:8px;letter-spacing:-.5px}
+.login-modal p{color:var(--text-secondary);font-size:14px;margin-bottom:32px}
+.social-btn{width:100%;padding:14px;background:var(--bg-hover);border:1px solid var(--border);border-radius:12px;color:var(--text-primary);font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:12px;transition:var(--transition)}
+.social-btn:hover{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.2)}
+.social-btn svg{width:18px;height:18px}
+.divider{display:flex;align-items:center;color:var(--text-muted);font-size:12px;margin:24px 0}
+.divider::before,.divider::after{content:'';flex:1;border-bottom:1px solid var(--border)}
+.divider::before{margin-right:16px}.divider::after{margin-left:16px}
+.input-group{position:relative;margin-bottom:16px}
+.input-group input{width:100%;background:var(--bg-hover);border:1px solid var(--border);border-radius:12px;padding:16px;color:var(--text-primary);font-size:15px;outline:none;transition:var(--transition)}
+.input-group input:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(124,92,255,.1)}
+.input-group input::placeholder{color:transparent}
+.input-group label{position:absolute;left:16px;top:16px;color:var(--text-muted);font-size:15px;pointer-events:none;transition:var(--transition)}
+.input-group input:focus~label,.input-group input:not(:placeholder-shown)~label{top:-10px;left:12px;font-size:11px;background:var(--bg-elevated);padding:0 6px;color:var(--accent);font-weight:700}
+.login-btn{width:100%;padding:16px;background:var(--text-primary);color:var(--bg-base);border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;transition:var(--transition);margin-top:12px}
+.login-btn:hover{transform:translateY(-2px);box-shadow:0 10px 20px rgba(255,255,255,.1)}
+/* APP */
+.app-container{display:flex;height:100vh;opacity:0;pointer-events:none;transition:opacity .6s}
+.app-container.active{opacity:1;pointer-events:all}
+.sidebar{width:280px;background:var(--glass);backdrop-filter:blur(var(--blur));border-right:1px solid var(--border);padding:32px 24px;display:flex;flex-direction:column;gap:32px;z-index:10}
+.logo{font-family:var(--font-display);font-size:22px;font-weight:700;display:flex;align-items:center;gap:12px}
+.logo svg{color:var(--accent);filter:drop-shadow(0 0 10px var(--accent-glow))}
+.nav-group{display:flex;flex-direction:column;gap:6px;flex:1}
+.nav-item{color:var(--text-secondary);font-weight:500;font-size:14px;padding:12px 16px;border-radius:10px;cursor:pointer;display:flex;align-items:center;gap:14px;transition:var(--transition)}
+.nav-item:hover{color:var(--text-primary);background:rgba(255,255,255,.03)}
+.nav-item.active{color:var(--text-primary);background:rgba(255,255,255,.06);border-left:2px solid var(--accent)}
+.user-profile{padding:16px;background:var(--bg-hover);border-radius:16px;display:flex;align-items:center;gap:12px;cursor:pointer;border:1px solid transparent;transition:var(--transition)}
+.user-profile:hover{border-color:var(--border)}
+.user-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#2DD4BF);display:flex;align-items:center;justify-content:center;font-weight:bold;color:#fff;font-size:16px}
+.user-name{font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.user-handle{font-size:12px;color:var(--text-muted)}
+.main-content{flex:1;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.header{padding:40px 48px;display:flex;justify-content:space-between;align-items:center}
+.header h1{font-family:var(--font-display);font-size:36px;letter-spacing:-1px}
+.view-section{display:none;flex:1;flex-direction:column;overflow:hidden}
+.view-section.active{display:flex;animation:fadeIn .4s}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.track-grid{padding:0 48px 140px;display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;overflow-y:auto;flex:1}
+.track-card{background:var(--bg-elevated);border:1px solid var(--border);border-radius:16px;padding:16px;display:flex;align-items:center;gap:16px;cursor:pointer;transition:var(--transition)}
+.track-card:hover{background:var(--bg-hover);transform:translateY(-4px);border-color:rgba(124,92,255,.3);box-shadow:0 10px 30px rgba(0,0,0,.4)}
+.art-container img{width:64px;height:64px;border-radius:10px;object-fit:cover}
+.track-info{flex:1;overflow:hidden}
+.track-title{font-weight:600;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:4px}
+.track-artist{color:var(--text-secondary);font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.player-wrapper{position:absolute;bottom:32px;left:32px;right:32px;z-index:20}
+.player-bar{height:88px;background:rgba(11,13,16,.85);backdrop-filter:blur(40px);border:1px solid rgba(255,255,255,.08);border-radius:20px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;box-shadow:0 20px 50px rgba(0,0,0,.8)}
+.player-left{width:30%;display:flex;align-items:center;gap:20px;cursor:pointer}
+.player-left img{width:56px;height:56px;border-radius:10px;display:none}
+.player-center{width:40%;display:flex;flex-direction:column;align-items:center;gap:8px}
+.controls{display:flex;align-items:center;gap:24px}
+.btn-icon{background:none;border:none;color:var(--text-secondary);cursor:pointer;transition:var(--transition)}
+.btn-icon:hover{color:var(--text-primary);transform:scale(1.1)}
+.play-btn{width:48px;height:48px;border-radius:50%;background:var(--text-primary);color:var(--bg-base);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:var(--transition)}
+.progress-container{display:flex;align-items:center;gap:16px;width:100%;max-width:500px;color:var(--text-muted);font-size:11px}
+input[type=range]{-webkit-appearance:none;width:100%;background:transparent}
+input[type=range]::-webkit-slider-runnable-track{height:4px;background:rgba(255,255,255,.1);border-radius:4px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;height:12px;width:12px;border-radius:50%;background:var(--text-primary);margin-top:-4px}
+.player-right{width:30%;display:flex;align-items:center;justify-content:flex-end;gap:20px}
+.search-container{padding:0 48px 32px}
+.search-input{width:100%;max-width:600px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:12px;padding:16px 24px;color:var(--text-primary);outline:none;transition:var(--transition)}
+.search-input:focus{border-color:var(--accent)}
+.chat-box{margin:0 48px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:16px;padding:24px;height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
+.chat-msg{background:var(--bg-hover);padding:12px 16px;border-radius:12px;font-size:14px}
+.community-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:24px;padding:0 48px}
+.community-card{padding:24px;border-radius:16px;color:#fff;cursor:pointer;display:flex;flex-direction:column;justify-content:space-between;height:200px;transition:var(--transition)}
+.community-card:hover{transform:translateY(-4px) scale(1.02)}
+#toastContainer{position:fixed;bottom:20px;right:20px;z-index:999}
+.toast{background:var(--accent);color:#fff;padding:14px 24px;border-radius:10px;font-weight:600;box-shadow:0 10px 25px rgba(0,0,0,.4);animation:slideIn .3s}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+.eq-panel{position:absolute;bottom:120px;right:32px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:16px;padding:24px;display:none;z-index:30;width:320px}
+.eq-panel.active{display:block}
+.eq-band{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.eq-band label{font-size:11px;color:var(--text-secondary);width:50px;font-weight:600}
+</style>
 </head>
 <body>
+<div class="ambient-bg"></div>
 
-    <!-- BILLION DOLLAR LOGIN SCREEN -->
-    <div class="login-screen" id="loginScreen">
-        <div class="login-modal">
-            <div class="login-logo">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M2 12h2l3-9 4 18 4-18 3 9h2"/></svg>
-            </div>
-            <h2>Welcome to OpenWave</h2>
-            <p>The world's most advanced open music engine.</p>
-            
-            <!-- Social Logins -->
-            <button class="social-btn" onclick="socialLogin('Google')">
-                <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-                Continue with Google
-            </button>
-            <button class="social-btn" onclick="socialLogin('Facebook')">
-                <svg viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-                Continue with Facebook
-            </button>
+<!-- LOGIN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-modal">
+    <div class="login-logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M2 12h2l3-9 4 18 4-18 3 9h2"/></svg></div>
+    <h2>Welcome to OpenWave</h2>
+    <p>The world's most advanced open music engine.</p>
+    <button class="social-btn" onclick="socialLogin('Google')">
+      <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Continue with Google
+    </button>
+    <button class="social-btn" onclick="socialLogin('Facebook')">
+      <svg viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+      Continue with Facebook
+    </button>
+    <div class="divider">OR</div>
+    <div class="input-group"><input type="text" id="inputName" placeholder="Name" required><label>Display Name</label></div>
+    <div class="input-group"><input type="text" id="inputUsername" placeholder="Username" required><label>Username</label></div>
+    <button class="login-btn" onclick="handleLogin()">Enter OpenWave</button>
+  </div>
+</div>
 
-            <div class="divider">OR</div>
-            
-            <div class="input-group">
-                <input type="text" id="inputName" placeholder="Name" required>
-                <label>Display Name</label>
-            </div>
-            <div class="input-group">
-                <input type="text" id="inputUsername" placeholder="Username" required>
-                <label>Username</label>
-            </div>
-            
-            <button class="login-btn" onclick="handleLogin()">Enter OpenWave</button>
+<!-- APP -->
+<div class="app-container" id="appContainer">
+  <aside class="sidebar">
+    <div class="logo"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M2 12h2l3-9 4 18 4-18 3 9h2"/></svg> OPENWAVE</div>
+    <div class="nav-group">
+      <a class="nav-item active" onclick="switchTab('home')" id="nav-home">Home</a>
+      <a class="nav-item" onclick="switchTab('discover')" id="nav-discover">Discover Weekly</a>
+      <a class="nav-item" onclick="switchTab('my-music')" id="nav-my-music">My Music</a>
+      <a class="nav-item" onclick="switchTab('search')" id="nav-search">Search</a>
+      <a class="nav-item" onclick="switchTab('library')" id="nav-library">Library</a>
+      <a class="nav-item" onclick="switchTab('community')" id="nav-community">Community</a>
+      <a class="nav-item" onclick="switchTab('stats')" id="nav-stats">Wrapped</a>
+    </div>
+    <div class="user-profile" onclick="logout()">
+      <div class="user-avatar" id="uiAvatar">J</div>
+      <div><div class="user-name" id="uiName">John</div><div class="user-handle" id="uiHandle">@john</div></div>
+    </div>
+  </aside>
+  <main class="main-content">
+    <div class="header"><h1 id="page-title">EXPLORE MUSIC</h1></div>
+    <div class="view-section active" id="view-home"><div class="track-grid" id="grid-home"></div></div>
+    <div class="view-section" id="view-discover"><div class="track-grid" id="grid-discover"></div></div>
+    <div class="view-section" id="view-my-music"><div class="track-grid" id="grid-my-music"></div></div>
+    <div class="view-section" id="view-search">
+      <div class="search-container"><input type="text" id="searchInput" class="search-input" placeholder="Search..." onkeyup="debounceSearch()"></div>
+      <div class="track-grid" id="grid-search"></div>
+    </div>
+    <div class="view-section" id="view-library"><div class="track-grid" id="grid-library"></div></div>
+    <div class="view-section" id="view-community">
+      <h2 style="padding:0 48px 24px;font-family:var(--font-display)">Trending Community Playlists</h2>
+      <div class="community-grid" id="communityGrid"></div>
+      <h2 style="padding:32px 48px 24px;font-family:var(--font-display)">Global Chat</h2>
+      <div class="chat-box" id="chatBox"></div>
+      <div style="display:flex;gap:12px;margin:20px 48px 0">
+        <input type="text" id="chatInput" placeholder="Type a message..." style="flex:1;padding:16px;border-radius:12px;border:1px solid var(--border);background:var(--bg-elevated);color:var(--text-primary);outline:none" onkeypress="handleChatEnter(event)">
+        <button onclick="sendChatMessage()" style="background:var(--accent);color:#fff;border:none;padding:0 32px;border-radius:12px;font-weight:700;cursor:pointer">Send</button>
+      </div>
+    </div>
+    <div class="view-section" id="view-stats">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;padding:0 48px">
+        <div style="background:var(--bg-elevated);padding:32px;border-radius:16px;border:1px solid var(--border)"><h3 style="color:var(--text-secondary);font-size:14px;text-transform:uppercase">Total Listening</h3><div style="font-size:48px;font-weight:700;font-family:var(--font-display)" id="statTotalTime">0m</div></div>
+        <div style="background:var(--bg-elevated);padding:32px;border-radius:16px;border:1px solid var(--border)"><h3 style="color:var(--text-secondary);font-size:14px;text-transform:uppercase">Top Artist</h3><div style="font-size:48px;font-weight:700;color:var(--accent);font-family:var(--font-display)" id="statTopArtist">-</div></div>
+        <div style="grid-column:span 2;background:var(--bg-elevated);padding:32px;border-radius:16px;border:1px solid var(--border)"><canvas id="artistChart" style="max-height:300px"></canvas></div>
+      </div>
+    </div>
+    <div class="eq-panel" id="eqPanel">
+      <h3 style="margin-bottom:16px;font-family:var(--font-display)">10-Band Equalizer</h3>
+      <div id="eqBands"></div>
+    </div>
+    <div class="player-wrapper">
+      <div class="player-bar">
+        <div class="player-left"><img id="currentArt"><div><div class="track-title" id="currentTitle">Awaiting Input</div><div class="track-artist" id="currentArtist">OpenWave</div></div></div>
+        <div class="player-center">
+          <div class="controls">
+            <button class="btn-icon" onclick="prevTrack()"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
+            <button class="play-btn" onclick="togglePlay()"><svg id="playIcon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg><svg id="pauseIcon" style="display:none" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg></button>
+            <button class="btn-icon" onclick="nextTrack()"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></button>
+            <button class="btn-icon" onclick="toggleEQ()" title="Equalizer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/></svg></button>
+          </div>
+          <div class="progress-container"><span id="currentTime">0:00</span><input type="range" id="progressBar" min="0" max="100" value="0" onchange="seekAudio(this.value)"><span id="durationTime">0:00</span></div>
         </div>
+        <div class="player-right"><input type="range" id="volumeBar" min="0" max="1" step="0.01" value="0.8" onchange="changeVolume(this.value)" style="width:100px"></div>
+      </div>
     </div>
+  </main>
+</div>
+<audio id="audioPlayer" crossorigin="anonymous"></audio>
+<div id="toastContainer"></div>
 
-    <!-- MAIN APP -->
-    <div class="app-container" id="appContainer">
-        <aside class="sidebar">
-            <div class="logo"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M2 12h2l3-9 4 18 4-18 3 9h2"/></svg> OPENWAVE</div>
-            <div class="nav-group">
-                <a class="nav-item active" onclick="switchTab('home')" id="nav-home">Home</a>
-                <a class="nav-item" onclick="switchTab('my-music')" id="nav-my-music">My Music</a>
-                <a class="nav-item" onclick="switchTab('search')" id="nav-search">Search</a>
-                <a class="nav-item" onclick="switchTab('library')" id="nav-library">Library</a>
-                <a class="nav-item" onclick="switchTab('community')" id="nav-community">Community</a>
-                <a class="nav-item" onclick="switchTab('stats')" id="nav-stats">Wrapped</a>
-            </div>
-            
-            <div class="user-profile" onclick="logout()">
-                <div class="user-avatar" id="uiAvatar">J</div>
-                <div class="user-info">
-                    <div class="user-name" id="uiName">John Doe</div>
-                    <div class="user-handle" id="uiHandle">@johndoe</div>
-                </div>
-            </div>
-        </aside>
-        
-        <main class="main-content">
-            <div class="header"><h1 id="page-title">EXPLORE MUSIC</h1></div>
-            
-            <div class="view-section active" id="view-home"><div class="track-grid" id="grid-home"></div></div>
-            <div class="view-section" id="view-my-music"><div class="track-grid" id="grid-my-music"></div></div>
-            <div class="view-section" id="view-search">
-                <div class="search-container"><input type="text" id="searchInput" class="search-input" placeholder="Search artists, tracks, or albums..." onkeyup="debounceSearch()"></div>
-                <div class="track-grid" id="grid-search"></div>
-            </div>
-            <div class="view-section" id="view-library"><div class="track-grid" id="grid-library"></div></div>
-            <div class="view-section" id="view-community">
-                <h2 style="padding: 0 48px 24px 48px; font-family: var(--font-display);">Trending Community Playlists</h2>
-                <div class="community-grid" id="communityGrid"></div>
-                <h2 style="padding: 32px 48px 24px 48px; font-family: var(--font-display);">Global Chat</h2>
-                <div class="chat-box" id="chatBox" style="height: 250px;"></div>
-                <div style="display:flex; gap:12px; margin: 20px 48px 0 48px;">
-                    <input type="text" id="chatInput" placeholder="Type a message..." style="flex:1; padding:16px; border-radius:12px; border:1px solid var(--border); background:var(--bg-elevated); color:var(--text-primary); outline:none; transition:var(--transition);" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'" onkeypress="handleChatEnter(event)">
-                    <button onclick="sendChatMessage()" style="background:var(--accent); color:#fff; border:none; padding:0 32px; border-radius:12px; font-weight:700; cursor:pointer; transition:var(--transition);" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">Send</button>
-                </div>
-            </div>
-            <div class="view-section" id="view-stats">
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:24px; padding:0 48px;">
-                    <div style="background:var(--bg-elevated); padding:32px; border-radius:16px; border:1px solid var(--border);"><h3 style="color:var(--text-secondary); margin-bottom:12px; font-size:14px; text-transform:uppercase; letter-spacing:1px;">Total Listening Time</h3><div style="font-size:48px; font-weight:700; color:var(--text-primary); font-family:var(--font-display);" id="statTotalTime">0m</div></div>
-                    <div style="background:var(--bg-elevated); padding:32px; border-radius:16px; border:1px solid var(--border);"><h3 style="color:var(--text-secondary); margin-bottom:12px; font-size:14px; text-transform:uppercase; letter-spacing:1px;">Top Artist</h3><div style="font-size:48px; font-weight:700; color:var(--accent); font-family:var(--font-display);" id="statTopArtist">-</div></div>
-                    <div style="grid-column: span 2; background:var(--bg-elevated); padding:32px; border-radius:16px; border:1px solid var(--border);"><canvas id="artistChart" style="max-height: 300px;"></canvas></div>
-                </div>
-            </div>
-            
-            <div class="player-wrapper">
-                <div class="player-bar">
-                    <div class="player-left"><img id="currentArt" src=""><div><div class="track-title" id="currentTitle">Awaiting Input</div><div class="track-artist" id="currentArtist">OpenWave System</div></div></div>
-                    <div class="player-center">
-                        <div class="controls">
-                            <button class="btn-icon" onclick="prevTrack()"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
-                            <button class="play-btn" onclick="togglePlay()"><svg id="playIcon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg><svg id="pauseIcon" style="display:none;" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg></button>
-                            <button class="btn-icon" onclick="nextTrack()"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></button>
-                        </div>
-                        <div class="progress-container"><span id="currentTime">0:00</span><input type="range" id="progressBar" min="0" max="100" value="0" onchange="seekAudio(this.value)"><span id="durationTime">0:00</span></div>
-                    </div>
-                    <div class="player-right"><input type="range" id="volumeBar" min="0" max="1" step="0.01" value="0.8" onchange="changeVolume(this.value)" style="width: 100px;"></div>
-                </div>
-            </div>
-        </main>
-    </div>
+<script>
+const API_BASE = "https://openwaveconnect.onrender.com";
+let allTracks=[],currentIndex=-1,savedTracks=JSON.parse(localStorage.getItem('openwave_library'))||[];
+let stats=JSON.parse(localStorage.getItem('openwave_stats'))||{totalMinutes:0,topArtists:{}};
+let currentUser=null,audioCtx=null,analyser=null,eqFilters=[];
+const audio=document.getElementById('audioPlayer');
 
-    <audio id="audioPlayer" crossorigin="anonymous"></audio>
-    <div id="toastContainer" style="position:fixed; bottom:20px; right:20px; z-index:999;"></div>
+function showToast(msg){const c=document.getElementById('toastContainer');const t=document.createElement('div');t.className='toast';t.innerText=msg;c.appendChild(t);setTimeout(()=>t.remove(),3000);}
 
-    <script>
-        const API_BASE = "https://openwaveconnect.onrender.com"; // <--- YOUR RENDER URL
-        let allTracks = [];
-        let currentIndex = -1;
-        let savedTracks = JSON.parse(localStorage.getItem('openwave_library')) || [];
-        let stats = JSON.parse(localStorage.getItem('openwave_stats')) || { totalMinutes: 0, topArtists: {} };
+window.onload=()=>{const u=JSON.parse(localStorage.getItem('openwave_user'));if(u){currentUser=u;showApp(u);}};
 
-        const audio = document.getElementById('audioPlayer');
+function socialLogin(p){event.target.innerHTML="Connecting...";setTimeout(()=>{const id=Math.floor(Math.random()*9999);const u={name:`${p} User`,username:`${p.toLowerCase()}_${id}`};localStorage.setItem('openwave_user',JSON.stringify(u));currentUser=u;showApp(u);},1200);}
 
-        // --- PREMIUM LOGIN LOGIC ---
-        window.onload = () => {
-            const savedUser = JSON.parse(localStorage.getItem('openwave_user'));
-            if (savedUser) {
-                showApp(savedUser);
-            }
-        };
+async function handleLogin(){
+  const name=document.getElementById('inputName').value.trim();
+  const username=document.getElementById('inputUsername').value.trim();
+  if(!name||!username){const m=document.querySelector('.login-modal');m.style.transform='translateX(-10px)';setTimeout(()=>m.style.transform='translateX(10px)',100);setTimeout(()=>m.style.transform='translateX(0)',200);return;}
+  const btn=document.querySelector('.login-btn');btn.innerText="Entering...";
+  try{
+    const res=await fetch(`${API_BASE}/api/auth/signup`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,username})});
+    const data=await res.json();
+    if(res.ok){localStorage.setItem('openwave_user',JSON.stringify(data.user));currentUser=data.user;showApp(data.user);}
+    else{
+      const lres=await fetch(`${API_BASE}/api/auth/login`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,username})});
+      const ldata=await lres.json();
+      if(lres.ok){localStorage.setItem('openwave_user',JSON.stringify(ldata.user));currentUser=ldata.user;showApp(ldata.user);}
+      else{btn.innerText="Enter OpenWave";showToast("Login failed");}
+    }
+  }catch(e){localStorage.setItem('openwave_user',JSON.stringify({name,username}));currentUser={name,username};showApp({name,username});}
+}
 
-        // Fake Social Login
-        function socialLogin(provider) {
-            const btn = event.target.closest('.social-btn');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = "Connecting to " + provider + "...";
-            
-            setTimeout(() => {
-                // Generate a random name/username for the social login
-                const randomId = Math.floor(Math.random() * 9999);
-                const user = { name: `${provider} User`, username: `${provider.toLowerCase()}_${randomId}` };
-                localStorage.setItem('openwave_user', JSON.stringify(user));
-                showApp(user);
-            }, 1500);
-        }
+function showApp(user){
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('appContainer').classList.add('active');
+  document.getElementById('uiName').innerText=user.name;
+  document.getElementById('uiHandle').innerText="@"+user.username;
+  document.getElementById('uiAvatar').innerText=user.name.charAt(0).toUpperCase();
+  fetchHome();
+}
 
-        function handleLogin() {
-            const name = document.getElementById('inputName').value.trim();
-            const username = document.getElementById('inputUsername').value.trim();
+function logout(){if(confirm("Log out?")){localStorage.removeItem('openwave_user');location.reload();}}
 
-            if (!name || !username) {
-                const modal = document.querySelector('.login-modal');
-                modal.style.transform = 'translateX(-10px)';
-                setTimeout(() => modal.style.transform = 'translateX(10px)', 100);
-                setTimeout(() => modal.style.transform = 'translateX(0)', 200);
-                return;
-            }
+// ═══ AUDIO ENGINE (Pillar 1: EQ + Analyser) ═══
+function setupAudioEngine(){
+  if(audioCtx)return;
+  audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+  const src=audioCtx.createMediaElementSource(audio);
+  const freqs=[32,64,125,250,500,1000,2000,4000,8000,16000];
+  let lastNode=src;
+  eqFilters=freqs.map((f,i)=>{
+    const filter=audioCtx.createBiquadFilter();
+    filter.type='peaking';filter.frequency.value=f;filter.Q.value=1;filter.gain.value=0;
+    lastNode.connect(filter);lastNode=filter;
+    return filter;
+  });
+  analyser=audioCtx.createAnalyser();analyser.fftSize=256;
+  lastNode.connect(analyser);analyser.connect(audioCtx.destination);
+  buildEQPanel(freqs);
+}
 
-            const btn = document.querySelector('.login-btn');
-            btn.innerText = "Entering...";
-            
-            setTimeout(() => {
-                const user = { name: name, username: username };
-                localStorage.setItem('openwave_user', JSON.stringify(user));
-                showApp(user);
-            }, 800);
-        }
+function buildEQPanel(freqs){
+  const container=document.getElementById('eqBands');
+  container.innerHTML='';
+  freqs.forEach((f,i)=>{
+    container.innerHTML+=`<div class="eq-band"><label>${f<1000?f+'Hz':(f/1000)+'kHz'}</label><input type="range" min="-12" max="12" value="0" oninput="setEQ(${i},this.value)"></div>`;
+  });
+}
 
-        function showApp(user) {
-            document.getElementById('loginScreen').classList.add('hidden');
-            document.getElementById('appContainer').classList.add('active');
-            
-            document.getElementById('uiName').innerText = user.name;
-            document.getElementById('uiHandle').innerText = "@" + user.username;
-            document.getElementById('uiAvatar').innerText = user.name.charAt(0).toUpperCase();
+function setEQ(idx,val){if(eqFilters[idx])eqFilters[idx].gain.value=parseFloat(val);}
+function toggleEQ(){document.getElementById('eqPanel').classList.toggle('active');}
 
-            fetchHome(); // Load music
-        }
+// ═══ PLAYER ═══
+async function fetchHome(){
+  const grid=document.getElementById('grid-home');grid.innerHTML='<div style="padding:40px;color:var(--text-secondary);grid-column:1/-1;text-align:center">Syncing...</div>';
+  try{
+    const [a,j]=await Promise.all([fetch(`${API_BASE}/api/audius/trending`).then(r=>r.json()),fetch(`${API_BASE}/api/jamendo/trending`).then(r=>r.json())]);
+    let m=[];
+    if(a.data)m=m.concat(a.data.map(t=>({id:t.id,title:t.title,artist:t.user.name,artwork:t.artwork?.['150x150']||'',streamUrl:`${API_BASE}/api/audius/stream/${t.id}`})));
+    if(j.results)m=m.concat(j.results.map(t=>({id:t.id,title:t.name,artist:t.artist_name,artwork:t.image||'',streamUrl:t.audio})));
+    allTracks=m.sort(()=>Math.random()-.5);renderGrid(allTracks,'grid-home');
+  }catch(e){grid.innerHTML='<div style="padding:40px;color:var(--danger);grid-column:1/-1;text-align:center">Failed to connect</div>';}
+}
 
-        function logout() {
-            if(confirm("Log out of OpenWave?")) {
-                localStorage.removeItem('openwave_user');
-                location.reload();
-            }
-        }
+async function fetchDiscover(){
+  const grid=document.getElementById('grid-discover');
+  grid.innerHTML='<div style="padding:40px;color:var(--text-secondary);grid-column:1/-1;text-align:center">Building your weekly mix...</div>';
+  if(!currentUser)return;
+  try{
+    const res=await fetch(`${API_BASE}/api/discover/${currentUser.username}`);
+    const data=await res.json();
+    const tracks=(data.tracks||[]).map(t=>({id:t.id,title:t.title,artist:t.user?.name||'Unknown',artwork:t.artwork?.['150x150']||'',streamUrl:`${API_BASE}/api/audius/stream/${t.id}`}));
+    renderGrid(tracks,'grid-discover');
+  }catch(e){grid.innerHTML='<div style="padding:40px;grid-column:1/-1;text-align:center">Failed</div>';}
+}
 
-        // --- MUSIC LOGIC ---
-        function showToast(msg) {
-            const c = document.getElementById('toastContainer');
-            c.innerHTML = `<div style="background:var(--accent); color:white; padding:12px 24px; border-radius:8px; font-weight:600; box-shadow:0 10px 20px rgba(0,0,0,0.3);">${msg}</div>`;
-            setTimeout(() => c.innerHTML = '', 3000);
-        }
+async function fetchMyMusic(){
+  const grid=document.getElementById('grid-my-music');
+  grid.innerHTML='<div style="padding:40px;color:var(--text-secondary);grid-column:1/-1;text-align:center">Loading...</div>';
+  try{const res=await fetch(`${API_BASE}/api/my_music`);const data=await res.json();
+    if(data.tracks?.length)renderGrid(data.tracks,'grid-my-music');
+    else grid.innerHTML='<div style="padding:40px;text-align:center;grid-column:1/-1">No uploads yet</div>';
+  }catch(e){}
+}
 
-        async function fetchHome() {
-            const grid = document.getElementById('grid-home');
-            grid.innerHTML = '<div style="color:var(--text-secondary); grid-column:1/-1; text-align:center; padding:40px;">Syncing library...</div>';
-            try {
-                const [aRes, jRes] = await Promise.all([
-                    fetch(`${API_BASE}/api/audius/trending`).then(r => r.json()), 
-                    fetch(`${API_BASE}/api/jamendo/trending`).then(r => r.json())
-                ]);
-                let merged = [];
-                if (aRes.data) merged = merged.concat(aRes.data.map(t => ({ id: t.id, title: t.title, artist: t.user.name, artwork: t.artwork?.['150x150'] || '', streamUrl: `${API_BASE}/api/audius/stream/${t.id}` })));
-                if (jRes.results) merged = merged.concat(jRes.results.map(t => ({ id: t.id, title: t.name, artist: t.artist_name, artwork: t.image || '', streamUrl: t.audio })));
-                allTracks = merged.sort(() => Math.random() - 0.5);
-                renderGrid(allTracks, 'grid-home');
-            } catch(e) { grid.innerHTML = '<div style="color:var(--danger); grid-column:1/-1; text-align:center; padding:40px;">Failed to connect to server.</div>'; }
-        }
+function renderGrid(tracks,id){
+  const c=document.getElementById(id);c.innerHTML='';
+  tracks.forEach((t,i)=>{
+    const el=document.createElement('div');el.className='track-card';
+    el.innerHTML=`<div class="art-container"><img src="${t.artwork}" onerror="this.style.background='#1F242D'"></div><div class="track-info"><div class="track-title">${t.title}</div><div class="track-artist">${t.artist}</div></div>`;
+    el.onclick=()=>loadAndPlay(t,i,tracks);c.appendChild(el);
+  });
+}
 
-        async function fetchMyMusic() {
-            const grid = document.getElementById('grid-my-music');
-            grid.innerHTML = '<div style="color:var(--text-secondary); grid-column:1/-1; text-align:center; padding:40px;">Loading your tracks...</div>';
-            try {
-                const res = await fetch(`${API_BASE}/api/my_music`);
-                const data = await res.json();
-                if(data.tracks && data.tracks.length > 0) {
-                    renderGrid(data.tracks, 'grid-my-music');
-                } else {
-                    grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:40px; color:var(--text-muted);">No music added yet.</div>';
-                }
-            } catch(e) { grid.innerHTML = '<div style="color:var(--danger); grid-column:1/-1; text-align:center; padding:40px;">Failed to load your music.</div>'; }
-        }
+function loadAndPlay(track,idx,ctx){
+  allTracks=ctx;currentIndex=idx;
+  document.getElementById('currentTitle').innerText=track.title;
+  document.getElementById('currentArtist').innerText=track.artist;
+  document.getElementById('currentArt').src=track.artwork;
+  document.getElementById('currentArt').style.display='block';
+  audio.src=track.streamUrl;setupAudioEngine();audio.play();
+  document.getElementById('playIcon').style.display='none';
+  document.getElementById('pauseIcon').style.display='block';
+  logPlay(track);
+  // Update stats on backend
+  if(currentUser){
+    fetch(`${API_BASE}/api/discover/${currentUser.username}`).catch(()=>{});
+  }
+}
 
-        function renderGrid(tracks, containerId) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = '';
-            tracks.forEach((track, index) => {
-                const card = document.createElement('div');
-                card.className = 'track-card';
-                card.innerHTML = `
-                    <div class="art-container"><img src="${track.artwork}" alt="Cover"></div>
-                    <div class="track-info"><div class="track-title">${track.title}</div><div class="track-artist">${track.artist}</div></div>
-                `;
-                card.onclick = () => loadAndPlay(track, index, tracks);
-                container.appendChild(card);
-            });
-        }
+function togglePlay(){if(!audio.src)return;if(audio.paused){audio.play();document.getElementById('playIcon').style.display='none';document.getElementById('pauseIcon').style.display='block';}else{audio.pause();document.getElementById('playIcon').style.display='block';document.getElementById('pauseIcon').style.display='none';}}
+function nextTrack(){if(currentIndex<allTracks.length-1)loadAndPlay(allTracks[currentIndex+1],currentIndex+1,allTracks);}
+function prevTrack(){if(currentIndex>0)loadAndPlay(allTracks[currentIndex-1],currentIndex-1,allTracks);}
+function seekAudio(v){if(audio.duration)audio.currentTime=(v/100)*audio.duration;}
+function changeVolume(v){audio.volume=v;}
 
-        function loadAndPlay(track, index, queueContext) {
-            allTracks = queueContext; currentIndex = index;
-            document.getElementById('currentTitle').innerText = track.title;
-            document.getElementById('currentArtist').innerText = track.artist;
-            document.getElementById('currentArt').src = track.artwork;
-            document.getElementById('currentArt').style.display = 'block';
-            audio.src = track.streamUrl;
-            audio.play();
-            document.getElementById('playIcon').style.display = 'none';
-            document.getElementById('pauseIcon').style.display = 'block';
-            logPlay(track);
-        }
+audio.addEventListener('timeupdate',()=>{if(audio.duration){document.getElementById('progressBar').value=(audio.currentTime/audio.duration)*100;document.getElementById('currentTime').innerText=formatTime(audio.currentTime);}});
+audio.addEventListener('loadedmetadata',()=>document.getElementById('durationTime').innerText=formatTime(audio.duration));
+audio.addEventListener('ended',nextTrack);
 
-        function togglePlay() {
-            if (!audio.src) return;
-            if (audio.paused) { audio.play(); document.getElementById('playIcon').style.display = 'none'; document.getElementById('pauseIcon').style.display = 'block'; }
-            else { audio.pause(); document.getElementById('playIcon').style.display = 'block'; document.getElementById('pauseIcon').style.display = 'none'; }
-        }
+// ═══ KEYBOARD SHORTCUTS (Pillar 10) ═══
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT')return;
+  if(e.code==='Space'){e.preventDefault();togglePlay();}
+  if(e.code==='ArrowRight'&&audio.duration)audio.currentTime+=5;
+  if(e.code==='ArrowLeft'&&audio.duration)audio.currentTime-=5;
+  if(e.code==='KeyN')nextTrack();
+  if(e.code==='KeyP')prevTrack();
+});
 
-        function nextTrack() { if (currentIndex < allTracks.length - 1) loadAndPlay(allTracks[currentIndex + 1], currentIndex + 1, allTracks); }
-        function prevTrack() { if (currentIndex > 0) loadAndPlay(allTracks[currentIndex - 1], currentIndex - 1, allTracks); }
-        function seekAudio(value) { if (audio.duration) audio.currentTime = (value / 100) * audio.duration; }
-        function changeVolume(value) { audio.volume = value; }
+// ═══ SEARCH ═══
+let searchTimeout;
+function debounceSearch(){clearTimeout(searchTimeout);searchTimeout=setTimeout(async()=>{
+  const q=document.getElementById('searchInput').value;if(q.length<2)return;
+  fetch(`${API_BASE}/api/search?q=${encodeURIComponent(q)}`).then(r=>r.json()).then(d=>{
+    let m=[];
+    if(d.audius)m=m.concat(d.audius.map(t=>({id:t.id,title:t.title,artist:t.user.name,artwork:t.artwork?.['150x150']||'',streamUrl:`${API_BASE}/api/audius/stream/${t.id}`})));
+    if(d.jamendo)m=m.concat(d.jamendo.map(t=>({id:t.id,title:t.name,artist:t.artist_name,artwork:t.image||'',streamUrl:t.audio})));
+    allTracks=m;renderGrid(m,'grid-search');
+  });
+},400);}
 
-        audio.addEventListener('timeupdate', () => {
-            if (audio.duration) {
-                document.getElementById('progressBar').value = (audio.currentTime / audio.duration) * 100;
-                document.getElementById('currentTime').innerText = formatTime(audio.currentTime);
-            }
-        });
-        audio.addEventListener('loadedmetadata', () => { document.getElementById('durationTime').innerText = formatTime(audio.duration); });
-        audio.addEventListener('ended', () => nextTrack());
+function switchTab(tab){
+  document.querySelectorAll('.view-section').forEach(e=>e.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
+  document.getElementById(`view-${tab}`).classList.add('active');
+  document.getElementById(`nav-${tab}`).classList.add('active');
+  const titles={home:'EXPLORE MUSIC',discover:'DISCOVER WEEKLY', 'my-music':'MY MUSIC',search:'SEARCH',library:'LIBRARY',community:'COMMUNITY',stats:'WRAPPED'};
+  document.getElementById('page-title').innerText=titles[tab]||'OPENWAVE';
+  if(tab==='discover')fetchDiscover();
+  if(tab==='my-music')fetchMyMusic();
+  if(tab==='library')renderGrid(savedTracks,'grid-library');
+  if(tab==='community')fetchCommunity();
+  if(tab==='stats')renderStats();
+}
 
-        function debounceSearch() {
-            const q = document.getElementById('searchInput').value;
-            if(q.length < 2) return;
-            fetch(`${API_BASE}/api/search?q=${encodeURIComponent(q)}`).then(r => r.json()).then(data => {
-                let merged = [];
-                if (data.audius) merged = merged.concat(data.audius.map(t => ({ id: t.id, title: t.title, artist: t.user.name, artwork: t.artwork?.['150x150'] || '', streamUrl: `${API_BASE}/api/audius/stream/${t.id}` })));
-                if (data.jamendo) merged = merged.concat(data.jamendo.map(t => ({ id: t.id, title: t.name, artist: t.artist_name, artwork: t.image || '', streamUrl: t.audio })));
-                allTracks = merged; renderGrid(merged, 'grid-search');
-            });
-        }
+// ═══ COMMUNITY ═══
+async function fetchCommunity(){
+  try{
+    const [p,c]=await Promise.all([fetch(`${API_BASE}/api/community/playlists`).then(r=>r.json()),fetch(`${API_BASE}/api/community/chat`).then(r=>r.json())]);
+    const g=document.getElementById('communityGrid');g.innerHTML='';
+    p.playlists.forEach(pl=>g.innerHTML+=`<div class="community-card" style="background:linear-gradient(135deg,${pl.color},#14171C)"><div><h3 style="font-family:var(--font-display);font-size:20px;margin-bottom:8px">${pl.name}</h3><p style="opacity:.7;font-size:13px">By ${pl.author}</p></div></div>`);
+    renderChat(c.messages);
+  }catch(e){}
+}
+function renderChat(msgs){
+  const b=document.getElementById('chatBox');b.innerHTML='';
+  const name=currentUser?.name||'Guest';
+  msgs.forEach(m=>{
+    const me=m.user===name;
+    b.innerHTML+=`<div class="chat-msg"><strong style="color:${me?'var(--accent)':'var(--text-primary)'}">${m.user}</strong> <span style="font-size:11px;float:right;color:var(--text-muted)">${m.time}</span><br>${m.text}</div>`;
+  });
+  b.scrollTop=b.scrollHeight;
+}
+function handleChatEnter(e){if(e.key==='Enter')sendChatMessage();}
+async function sendChatMessage(){
+  const i=document.getElementById('chatInput');const t=i.value.trim();if(!t)return;
+  const n=new Date();const time=`${n.getHours().toString().padStart(2,'0')}:${n.getMinutes().toString().padStart(2,'0')}`;
+  i.value='';
+  try{await fetch(`${API_BASE}/api/community/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user:currentUser?.name||'Guest',text:t,time})});
+    const r=await fetch(`${API_BASE}/api/community/chat`);const d=await r.json();renderChat(d.messages);
+  }catch(e){showToast("Failed to send");}
+}
 
-        function switchTab(tab) {
-            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            document.getElementById(`view-${tab}`).classList.add('active');
-            document.getElementById(`nav-${tab}`).classList.add('active');
-            
-            if(tab === 'my-music') { document.getElementById('page-title').innerText = "MY MUSIC"; fetchMyMusic(); }
-            if(tab === 'library') renderGrid(savedTracks, 'grid-library');
-            if(tab === 'community') fetchCommunity();
-        }
-
-        async function fetchCommunity() {
-            try {
-                const [pRes, cRes] = await Promise.all([fetch(`${API_BASE}/api/community/playlists`).then(r=>r.json()), fetch(`${API_BASE}/api/community/chat`).then(r=>r.json())]);
-                const grid = document.getElementById('communityGrid');
-                grid.innerHTML = '';
-                pRes.playlists.forEach(pl => {
-                    grid.innerHTML += `<div class="community-card" style="background: linear-gradient(135deg, ${pl.color}, #14171C);"><div><h3 style="font-family:var(--font-display); font-size:20px; margin-bottom:8px;">${pl.name}</h3><p style="opacity:0.7; font-size:13px; font-weight:500;">By ${pl.author}</p></div></div>`;
-                });
-                renderChat(cRes.messages);
-            } catch(e) {}
-        }
-
-        function renderChat(messages) {
-            const chatBox = document.getElementById('chatBox');
-            chatBox.innerHTML = '';
-            
-            const currentUser = JSON.parse(localStorage.getItem('openwave_user'));
-            const myName = currentUser ? currentUser.name : "Guest";
-
-            messages.forEach(msg => {
-                const isMe = msg.user === myName;
-                const nameColor = isMe ? 'var(--accent)' : 'var(--text-primary)';
-                chatBox.innerHTML += `<div class="chat-msg"><strong style="color:${nameColor}">${msg.user}</strong> <span style="font-size:11px; float:right; color:var(--text-muted);">${msg.time}</span><br><span style="color:var(--text-secondary);">${msg.text}</span></div>`;
-            });
-        }
-
-        function handleChatEnter(e) { if (e.key === 'Enter') sendChatMessage(); }
-
-        async function sendChatMessage() {
-            const input = document.getElementById('chatInput');
-            const text = input.value.trim();
-            if (!text) return;
-            
-            const currentUser = JSON.parse(localStorage.getItem('openwave_user'));
-            const myName = currentUser ? currentUser.name : "Guest";
-
-            const now = new Date();
-            const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-            input.value = '';
-            try {
-                await fetch(`${API_BASE}/api/community/chat`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user: myName, text: text, time: timeStr }) });
-                const res = await fetch(`${API_BASE}/api/community/chat`);
-                const data = await res.json();
-                renderChat(data.messages);
-            } catch(e) { showToast("Failed to send message."); }
-        }
-
-        function logPlay(track) {
-            stats.totalMinutes += 4;
-            stats.topArtists[track.artist] = (stats.topArtists[track.artist] || 0) + 1;
-            localStorage.setItem('openwave_stats', JSON.stringify(stats));
-        }
-
-        function formatTime(s) { if(!s || isNaN(s)) return "0:00"; const m = Math.floor(s / 60); return `${m}:${Math.floor(s % 60).toString().padStart(2, '0')}`; }
-    </script>
+// ═══ STATS ═══
+function logPlay(t){stats.totalMinutes+=4;stats.topArtists[t.artist]=(stats.topArtists[t.artist]||0)+1;localStorage.setItem('openwave_stats',JSON.stringify(stats));}
+function renderStats(){
+  document.getElementById('statTotalTime').innerText=`${stats.totalMinutes}m`;
+  const s=Object.entries(stats.topArtists).sort((a,b)=>b[1]-a[1]);
+  if(s.length)document.getElementById('statTopArtist').innerText=s[0][0];
+  const ctx=document.getElementById('artistChart').getContext('2d');
+  if(window.myChart)window.myChart.destroy();
+  window.myChart=new Chart(ctx,{type:'bar',data:{labels:s.slice(0,5).map(x=>x[0]),datasets:[{data:s.slice(0,5).map(x=>x[1]),backgroundColor:'rgba(124,92,255,.8)',borderRadius:8}]},options:{plugins:{legend:{display:false}}}});
+}
+function formatTime(s){if(!s||isNaN(s))return"0:00";const m=Math.floor(s/60);return`${m}:${Math.floor(s%60).toString().padStart(2,'0')}`;}
+</script>
 </body>
 </html>
