@@ -8,68 +8,76 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.0/color-thief.umd.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* =========================================
-           FONTS & RESET
-           ========================================= */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
-            --bg-base: #050608; --bg-elevated: #0B0D10; --bg-hover: #14171C; --border: #1F242D;
+            --bg-base: #030405; --bg-elevated: #0A0C10; --bg-hover: #14171C; --border: #1F242D;
             --text-primary: #F5F7FA; --text-secondary: #8E96A3; --text-muted: #4A5260;
-            --accent: #7C5CFF; --accent-glow: rgba(124, 92, 255, 0.4); --danger: #FF5C7A;
-            --glass: rgba(10, 12, 16, 0.6); --blur: 30px; --font-display: 'Space Grotesk', sans-serif;
-            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --accent: #7C5CFF; --accent-hover: #9179FF; --accent-glow: rgba(124, 92, 255, 0.3);
+            --danger: #FF5C7A; --glass: rgba(10, 12, 16, 0.6); --blur: 40px; 
+            --font-display: 'Space Grotesk', sans-serif; --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
-        body {
-            background-color: var(--bg-base); color: var(--text-primary);
-            font-family: 'Inter', sans-serif; height: 100vh; overflow: hidden;
-            -webkit-font-smoothing: antialiased;
-        }
-
+        body { background-color: var(--bg-base); color: var(--text-primary); font-family: 'Inter', sans-serif; height: 100vh; overflow: hidden; -webkit-font-smoothing: antialiased; }
+        
         /* Ambient Animated Background */
         .ambient-bg {
             position: fixed; top: -50%; left: -50%; width: 200%; height: 200%;
             background: radial-gradient(circle at 50% 50%, var(--accent-glow) 0%, transparent 40%);
-            z-index: -1; animation: rotate 30s linear infinite; opacity: 0.5; filter: blur(100px);
+            z-index: -1; animation: rotate 40s linear infinite; opacity: 0.6; filter: blur(120px);
         }
         @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
         ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
         /* =========================================
-           PREMIUM LOGIN SCREEN
+           BILLION DOLLAR LOGIN SCREEN
            ========================================= */
         .login-screen {
-            position: fixed; inset: 0; background: rgba(5, 6, 8, 0.8);
-            backdrop-filter: blur(40px); z-index: 9999;
+            position: fixed; inset: 0; background: rgba(3, 4, 5, 0.7);
+            backdrop-filter: blur(50px); z-index: 9999;
             display: flex; align-items: center; justify-content: center;
-            opacity: 1; transition: opacity 0.5s ease;
+            opacity: 1; transition: opacity 0.6s ease;
         }
         .login-screen.hidden { opacity: 0; pointer-events: none; }
 
         .login-modal {
             background: var(--bg-elevated); border: 1px solid var(--border);
-            border-radius: 24px; padding: 48px; width: 440px; text-align: center;
-            box-shadow: 0 40px 100px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.05) inset;
-            transform: translateY(0); transition: var(--transition);
+            border-radius: 24px; padding: 56px 48px; width: 440px; text-align: center;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,255,255,0.03) inset;
+            transition: var(--transition);
         }
 
         .login-logo {
-            width: 64px; height: 64px; background: linear-gradient(135deg, var(--accent), #A88BFF);
+            width: 56px; height: 56px; background: linear-gradient(135deg, var(--accent), #A88BFF);
             border-radius: 16px; display: flex; align-items: center; justify-content: center;
-            margin: 0 auto 24px; box-shadow: 0 10px 30px var(--accent-glow);
+            margin: 0 auto 24px; box-shadow: 0 12px 32px var(--accent-glow);
         }
-        .login-logo svg { width: 32px; height: 32px; color: white; }
+        .login-logo svg { width: 28px; height: 28px; color: white; }
 
         .login-modal h2 { font-family: var(--font-display); font-size: 28px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px; }
-        .login-modal p { color: var(--text-secondary); font-size: 14px; margin-bottom: 40px; }
+        .login-modal p { color: var(--text-secondary); font-size: 14px; margin-bottom: 32px; }
 
-        .input-group { position: relative; margin-bottom: 24px; text-align: left; }
+        /* Social Login Buttons */
+        .social-btn {
+            width: 100%; padding: 14px; background: var(--bg-hover); border: 1px solid var(--border);
+            border-radius: 12px; color: var(--text-primary); font-size: 14px; font-weight: 600;
+            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px;
+            margin-bottom: 12px; transition: var(--transition);
+        }
+        .social-btn:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.2); }
+        .social-btn svg { width: 18px; height: 18px; }
+
+        .divider { display: flex; align-items: center; text-align: center; color: var(--text-muted); font-size: 12px; margin: 24px 0; }
+        .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--border); }
+        .divider:not(:empty)::before { margin-right: 16px; }
+        .divider:not(:empty)::after { margin-left: 16px; }
+
+        /* Input Fields */
+        .input-group { position: relative; margin-bottom: 16px; text-align: left; }
         .input-group input {
             width: 100%; background: var(--bg-hover); border: 1px solid var(--border);
             border-radius: 12px; padding: 16px; color: var(--text-primary); font-size: 15px;
@@ -83,24 +91,21 @@
         }
         .input-group input:focus ~ label,
         .input-group input:not(:placeholder-shown) ~ label {
-            top: -10px; left: 12px; font-size: 12px; background: var(--bg-elevated);
-            padding: 0 6px; color: var(--accent); font-weight: 600; letter-spacing: 0.5px;
+            top: -10px; left: 12px; font-size: 11px; background: var(--bg-elevated);
+            padding: 0 6px; color: var(--accent); font-weight: 700; letter-spacing: 0.5px;
         }
 
         .login-btn {
             width: 100%; padding: 16px; background: var(--text-primary); color: var(--bg-base);
             border: none; border-radius: 12px; font-size: 16px; font-weight: 700;
-            cursor: pointer; transition: var(--transition); margin-top: 10px;
+            cursor: pointer; transition: var(--transition); margin-top: 12px;
         }
         .login-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(255,255,255,0.1); }
 
         /* =========================================
            MAIN APP UI
            ========================================= */
-        .app-container {
-            display: flex; height: 100vh;
-            opacity: 0; pointer-events: none; transition: opacity 0.5s ease;
-        }
+        .app-container { display: flex; height: 100vh; opacity: 0; pointer-events: none; transition: opacity 0.6s ease; }
         .app-container.active { opacity: 1; pointer-events: all; }
 
         /* SIDEBAR */
@@ -109,11 +114,7 @@
             border-right: 1px solid var(--border); padding: 32px 24px;
             display: flex; flex-direction: column; gap: 32px; z-index: 10;
         }
-        .logo {
-            font-family: var(--font-display); font-size: 22px; font-weight: 700;
-            display: flex; align-items: center; gap: 12px; color: var(--text-primary);
-            letter-spacing: -0.5px;
-        }
+        .logo { font-family: var(--font-display); font-size: 22px; font-weight: 700; display: flex; align-items: center; gap: 12px; letter-spacing: -0.5px; }
         .logo svg { color: var(--accent); filter: drop-shadow(0 0 10px var(--accent-glow)); }
 
         .nav-group { display: flex; flex-direction: column; gap: 6px; flex: 1; }
@@ -160,10 +161,7 @@
             border-radius: 16px; padding: 16px; display: flex; align-items: center; gap: 16px;
             cursor: pointer; transition: var(--transition); position: relative; overflow: hidden;
         }
-        .track-card:hover {
-            background: var(--bg-hover); transform: translateY(-4px);
-            border-color: rgba(124, 92, 255, 0.3); box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-        }
+        .track-card:hover { background: var(--bg-hover); transform: translateY(-4px); border-color: rgba(124, 92, 255, 0.3); box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
         .art-container img { width: 64px; height: 64px; border-radius: 10px; object-fit: cover; }
         .track-info { flex: 1; overflow: hidden; }
         .track-title { font-weight: 600; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; color: var(--text-primary); }
@@ -198,30 +196,19 @@
 
         /* SEARCH & CHAT */
         .search-container { padding: 0 48px 32px 48px; }
-        .search-input {
-            width: 100%; max-width: 600px; background: var(--bg-elevated); border: 1px solid var(--border);
-            border-radius: 12px; padding: 16px 24px; color: var(--text-primary); outline: none; transition: var(--transition);
-        }
+        .search-input { width: 100%; max-width: 600px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 12px; padding: 16px 24px; color: var(--text-primary); outline: none; transition: var(--transition); }
         .search-input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(124,92,255,0.1); }
 
-        .chat-box {
-            margin: 0 48px; background: var(--bg-elevated); border: 1px solid var(--border);
-            border-radius: 16px; padding: 24px; height: 300px; overflow-y: auto;
-            display: flex; flex-direction: column; gap: 12px;
-        }
+        .chat-box { margin: 0 48px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 16px; padding: 24px; height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
         .chat-msg { background: var(--bg-hover); padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.5; }
         .community-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 24px; padding: 0 48px; }
-        .community-card {
-            padding: 24px; border-radius: 16px; color: #fff; cursor: pointer;
-            display: flex; flex-direction: column; justify-content: space-between; height: 200px;
-            transition: var(--transition); box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        }
+        .community-card { padding: 24px; border-radius: 16px; color: #fff; cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; height: 200px; transition: var(--transition); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
         .community-card:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
     </style>
 </head>
 <body>
 
-    <!-- LOGIN SCREEN -->
+    <!-- BILLION DOLLAR LOGIN SCREEN -->
     <div class="login-screen" id="loginScreen">
         <div class="login-modal">
             <div class="login-logo">
@@ -229,6 +216,18 @@
             </div>
             <h2>Welcome to OpenWave</h2>
             <p>The world's most advanced open music engine.</p>
+            
+            <!-- Social Logins -->
+            <button class="social-btn" onclick="socialLogin('Google')">
+                <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                Continue with Google
+            </button>
+            <button class="social-btn" onclick="socialLogin('Facebook')">
+                <svg viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                Continue with Facebook
+            </button>
+
+            <div class="divider">OR</div>
             
             <div class="input-group">
                 <input type="text" id="inputName" placeholder="Name" required>
@@ -330,12 +329,26 @@
             }
         };
 
+        // Fake Social Login
+        function socialLogin(provider) {
+            const btn = event.target.closest('.social-btn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = "Connecting to " + provider + "...";
+            
+            setTimeout(() => {
+                // Generate a random name/username for the social login
+                const randomId = Math.floor(Math.random() * 9999);
+                const user = { name: `${provider} User`, username: `${provider.toLowerCase()}_${randomId}` };
+                localStorage.setItem('openwave_user', JSON.stringify(user));
+                showApp(user);
+            }, 1500);
+        }
+
         function handleLogin() {
             const name = document.getElementById('inputName').value.trim();
             const username = document.getElementById('inputUsername').value.trim();
 
             if (!name || !username) {
-                // Instead of ugly alert, we shake the input
                 const modal = document.querySelector('.login-modal');
                 modal.style.transform = 'translateX(-10px)';
                 setTimeout(() => modal.style.transform = 'translateX(10px)', 100);
@@ -343,9 +356,14 @@
                 return;
             }
 
-            const user = { name: name, username: username };
-            localStorage.setItem('openwave_user', JSON.stringify(user));
-            showApp(user);
+            const btn = document.querySelector('.login-btn');
+            btn.innerText = "Entering...";
+            
+            setTimeout(() => {
+                const user = { name: name, username: username };
+                localStorage.setItem('openwave_user', JSON.stringify(user));
+                showApp(user);
+            }, 800);
         }
 
         function showApp(user) {
@@ -360,7 +378,6 @@
         }
 
         function logout() {
-            // Custom premium logout using a simple confirm for now
             if(confirm("Log out of OpenWave?")) {
                 localStorage.removeItem('openwave_user');
                 location.reload();
