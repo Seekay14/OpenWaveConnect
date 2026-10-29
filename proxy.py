@@ -18,7 +18,7 @@ app.add_middleware(
 # ==========================================
 # 🔑 YOUR API KEYS
 # ==========================================
-AUDIUS_TOKEN = "YOUR_AUDIUS_BEARER_TOKEN_HERE" # <-- PASTE YOUR AUDIUS TOKEN HERE
+AUDIUS_TOKEN = "bGVRhRUXM29ePJtL1RVmefUOEl1C9EXhRUc5ZY1ER68=" # <-- PASTE YOUR AUDIUS TOKEN HERE
 JAMENDO_CLIENT_ID = "f0a8f09d" 
 
 # ==========================================
